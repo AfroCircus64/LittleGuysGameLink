@@ -20,7 +20,21 @@ Little Guys Game Link is an integrated development environment that streamlines 
 - Screenshot/video attachment support
 - Progress monitoring dashboard
 
-### Future Components
+- **Long-term development**:
+  - Core Features:
+    - Platform-specific issue tracking for UE5 builds
+    - Comprehensive performance monitoring
+    - Specialized character pipeline support (MetaHuman/CC4/CC5)
+    - Animation system debugging
+    - 3D model import/export management
+  - Specialized Features:
+    - Visual documentation with screenshot/video capture
+    - Version control integration
+    - Automated issue assignment
+    - Priority-based notifications
+    - Performance metrics tracking (FPS, memory, load times)
+
+### Long-term development of Future Components
 
 - **Asset Management System**:
   - Core Features:
@@ -63,7 +77,7 @@ Little Guys Game Link is an integrated development environment that streamlines 
 ## Technology Stack
 
 - Backend: Java with Spring Boot
-- Frontend: React
+- Frontend: ReactJS
 - Database: MySQL
 
 ## Development Roadmap
