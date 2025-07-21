@@ -36,45 +36,49 @@ Little Guys Game Link is an integrated development environment that streamlines 
     - Priority-based notifications
     - Performance metrics tracking (FPS, memory, load times)
 
-### Long-term development of Future Components
+## Long-term development of Future Components
 
-- **Asset Management System**:
-  - Core Features:
-    - Centralized repository for all asset types
-    - Version control integration
-    - Platform-specific handling for UE5, MetaHuman, CC4/CC5, iClone8, and Blender
-  - Technical Implementation:
-    - Java backend for processing
-    - React frontend for interactive previews
-    - SQL database for metadata storage
+### Asset Management System
 
-- **Documentation Hub**:
-  - Core Features:
-    - Technical documentation
-    - Workflow documentation
-    - Tool integration guides
-  - Collab Features:
-    - Version-controlled documentation
-    - Collaborative editing
-    - Knowledge sharing
+- Core Features:
+  - Centralized repository for all asset types
+  - Version control integration
+  - Platform-specific handling for UE5, MetaHuman, CC4/CC5, iClone8, and Blender
+- Technical Implementation:
+  - Java backend for processing
+  - React frontend for interactive previews
+  - SQL database for metadata storage
 
-- **Task Automation Pipeline**:
-  - Automation Capabilities:
-    - Asset processing
-    - Validation systems
-    - Maintenance tasks
-  - Integration Points:
-    - Tool integration
-    - Workflow automation
+### Documentation Hub
 
-- **Release Manager**:
-  - Core Features:
-    - Build management
-    - Dependency management
-    - Deployment system
-  - Quality Assurance:
-    - Validation systems
-    - Monitoring systems
+- Core Features:
+  - Technical documentation
+  - Workflow documentation
+  - Tool integration guides
+- Collab Features:
+  - Version-controlled documentation
+  - Collaborative editing
+  - Knowledge sharing
+
+### Task Automation Pipeline
+
+- Automation Capabilities:
+  - Asset processing
+  - Validation systems
+  - Maintenance tasks
+- Integration Points:
+  - Tool integration
+  - Workflow automation
+
+### Release Manager
+
+- Core Features:
+  - Build management
+  - Dependency management
+  - Deployment system
+- Quality Assurance:
+  - Validation systems
+  - Monitoring systems
 
 ## Technology Stack
 
