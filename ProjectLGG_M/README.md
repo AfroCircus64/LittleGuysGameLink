@@ -20,7 +20,9 @@ Little Guys Game Link is an integrated development environment that streamlines 
 - Screenshot/video attachment support
 - Progress monitoring dashboard
 
-- **Long-term development**:
+#### Long-term development
+
+- **Bug Tracking System**:
   - Core Features:
     - Platform-specific issue tracking for UE5 builds
     - Comprehensive performance monitoring
