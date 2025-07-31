@@ -4,9 +4,9 @@
   },
   "dependencies": {
     "lucide-react": "^0.534.0",
-    "react-scripts": "^5.0.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-scripts": "^5.0.1"
   },
   "proxy": "http://localhost:8080",
   "scripts": {
