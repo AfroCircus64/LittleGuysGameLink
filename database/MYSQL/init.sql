@@ -17,8 +17,8 @@ CREATE TABLE platforms (
     name VARCHAR(50) UNIQUE NOT NULL
 );
 
--- Issues table
-CREATE TABLE issues (
+-- bugs table
+CREATE TABLE bugs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(150) NOT NULL,
     description TEXT,
