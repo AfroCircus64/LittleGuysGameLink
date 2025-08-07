@@ -41,7 +41,7 @@ CREATE TABLE attachments (
     file_url VARCHAR(255),
     file_type ENUM('screenshot', 'video'),
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (issue_id) REFERENCES issues(id)
+    FOREIGN KEY (issue_id) REFERENCES bugs(id)
 );
 
 -- Performance metrics table
@@ -52,7 +52,7 @@ CREATE TABLE performance_metrics (
     memory_mb INT,
     load_time_seconds FLOAT,
     measured_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (issue_id) REFERENCES issues(id)
+    FOREIGN KEY (issue_id) REFERENCES bugs(id)
 );
 
 INSERT INTO platforms (name) VALUES 
@@ -67,7 +67,7 @@ INSERT INTO platforms (name) VALUES
 INSERT INTO users (username, email, role) VALUES 
 ('casey', 'casey@example.com', 'admin');
 
-INSERT INTO issues (title, description, reporter_id, assignee_id, platform_id, status, priority) VALUES
+INSERT INTO bugs (title, description, reporter_id, assignee_id, platform_id, status, priority) VALUES
 ('Crash on launch in UE5', 'The application crashes on launch when loading certain assets.', 3, 2, 1, 'open', 'urgent'),
 ('Animation desync in MetaHuman', 'Lip sync breaks during rapid movements.', 3, 2, 2, 'in_progress', 'high');
 
