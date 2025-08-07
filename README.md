@@ -104,4 +104,4 @@ Little Guys Game Link is an integrated development environment that streamlines 
 
 ## License
 
-Little Guys Games
+MIT

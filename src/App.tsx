@@ -59,14 +59,65 @@ const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
 const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 const [videoPlaying, setVideoPlaying] = useState(false);
 const [recentProjects, setRecentProjects] = useState<string[]>([]);
+const [platforms, setPlatforms] = useState<{ id: number, name: string }[]>([]);
+const [users, setUsers] = useState<{ id: number, username: string }[]>([]);
 
-// Fetch issues from backend on mount
+// Mapping between frontend display values and backend/database values
+const statusDisplayToBackend: Record<string, string> = {
+  "Open": "open",
+  "In Progress": "in_progress",
+  "Testing": "in_progress", // If you want a separate 'testing', add it to DB ENUM
+  "Resolved": "resolved",
+  "Closed": "closed"
+};
+
+const statusBackendToDisplay: Record<string, string> = {
+  "open": "Open",
+  "in_progress": "In Progress",
+  "resolved": "Resolved",
+  "closed": "Closed"
+  // Add "testing": "Testing" if you add it to DB
+};
+
+const priorityDisplayToBackend: Record<string, string> = {
+  "Critical": "urgent",
+  "High": "high",
+  "Medium": "medium",
+  "Low": "low"
+};
+
+const priorityBackendToDisplay: Record<string, string> = {
+  "urgent": "Critical",
+  "high": "High",
+  "medium": "Medium",
+  "low": "Low"
+};
+
+// When fetching issues from backend, map backend values to display values
+function mapIssueFromBackend(issue: any): Issue {
+  return {
+    ...issue,
+    status: statusBackendToDisplay[issue.status] || issue.status,
+    priority: priorityBackendToDisplay[issue.priority] || issue.priority
+  };
+}
+
+// When sending a new/updated issue to backend, map display values to backend values
+function mapIssueToBackend(issue: Issue): any {
+  return {
+    ...issue,
+    status: statusDisplayToBackend[issue.status] || issue.status,
+    priority: priorityDisplayToBackend[issue.priority] || issue.priority
+  };
+}
+
+// Example usage in your fetch and setIssues logic:
 useEffect(() => {
   fetch("/api/bugs")
     .then((res) => res.json())
     .then((data: Issue[]) => {
-      setIssues(data);
-      setSelectedIssue(data[0] || null);
+      setIssues(data.map(mapIssueFromBackend));
+      setSelectedIssue(data.length > 0 ? mapIssueFromBackend(data[0]) : null);
     });
 
   // Fetch recent projects if endpoint exists
@@ -79,6 +130,14 @@ useEffect(() => {
       // fallback or leave empty if endpoint doesn't exist yet
       setRecentProjects([]);
     });
+
+  fetch("/api/platforms")
+    .then(res => res.json())
+    .then(data => setPlatforms(data));
+
+  fetch("/api/users")
+    .then(res => res.json())
+    .then(data => setUsers(data));
 }, []);
 
 const statusCounts = {
@@ -87,8 +146,6 @@ const statusCounts = {
   testing: issues.filter((i) => i.status === "Testing").length,
   resolved: issues.filter((i) => i.status === "Resolved").length,
 };
-
-const platforms = ['UE5', 'MetaHuman', 'CC4/CC5', 'iClone8', 'Blender'];
 
 const sidebarItems = [
   { icon: Bug, label: 'Bug Tracker', active: true },
@@ -152,6 +209,86 @@ export default function App() {
     avatarUrl: undefined, // or a URL string if you have one
     initials: "AM",
   });
+
+  const statusOptions = ["Open", "In Progress", "Resolved", "Closed"];
+  const priorityOptions = ["Critical", "High", "Medium", "Low"];
+
+  // Update formIssue to use platformId and assigneeId
+  const [formIssue, setFormIssue] = useState({
+    id: "",
+    code: "",
+    title: "",
+    description: "",
+    priority: "Medium",
+    status: "Open",
+    platform: platforms[0]?.name || "",
+    platformId: platforms[0]?.id || "",
+    assignee: users[0]?.username || "",
+    assigneeId: users[0]?.id || "",
+  });
+  function handleFormChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
+    const { name, value } = e.target;
+    // If platformId or assigneeId changes, update platform/assignee as well
+    if (name === "platformId") {
+      const platformObj = platforms.find(p => String(p.id) === value);
+      setFormIssue((prev) => ({
+        ...prev,
+        platformId: value,
+        platform: platformObj ? platformObj.name : "",
+      }));
+    } else if (name === "assigneeId") {
+    fetch("/api/bugs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(mapIssueToBackend(formIssue)),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setIssues((prev) => [...prev, mapIssueFromBackend(data)]);
+        // Optionally reset form
+        setFormIssue({
+          id: "",
+          code: "",
+          title: "",
+          description: "",
+          priority: "Medium",
+          status: "Open",
+          platform: platforms[0]?.name || "",
+          platformId: platforms[0]?.id || "",
+          assignee: users[0]?.username || "",
+          assigneeId: users[0]?.id || "",
+        });
+      });
+        platformId: formIssue.platformId,
+        assigneeId: formIssue.assigneeId,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setIssues((prev) => [...prev, mapIssueFromBackend(data)]);
+        // Optionally reset form
+        setFormIssue({
+          id: "",
+          code: "",
+          title: "",
+          description: "",
+          priority: "Medium",
+          status: "Open",
+          platformId: platforms[0]?.id || "",
+          assigneeId: users[0]?.id || "",
+        });
+      });
+  }
+
+  function getPlatformName(id: number) {
+    const platform = platforms.find(p => p.id === id);
+    return platform ? platform.name : "";
+  }
+
+  function getAssigneeName(id: number) {
+    const user = users.find(u => u.id === id);
+    return user ? user.username : "";
+  }
 
   return (
     <div className="h-screen bg-[#121212] text-white flex overflow-hidden">
@@ -293,17 +430,17 @@ export default function App() {
               <div className="flex gap-1">
                 {platforms.map((platform) => (
                   <Button
-                    key={platform}
-                    variant={selectedPlatform === platform ? "default" : "secondary"}
+                    key={platform.name}
+                    variant={selectedPlatform === platform.name ? "default" : "secondary"}
                     size="sm"
                     className={`text-sm ${
-                      selectedPlatform === platform
+                      selectedPlatform === platform.name
                         ? 'bg-[#1a237e] text-white hover:bg-[#1a237e]/90'
                         : 'bg-[#2a2a2a] text-gray-400 hover:text-white'
                     }`}
-                    onClick={() => setSelectedPlatform(platform)}
+                    onClick={() => setSelectedPlatform(platform.name)}
                   >
-                    {platform}
+                    {platform.name}
                   </Button>
                 ))}
               </div>
@@ -530,6 +667,66 @@ export default function App() {
                 </Card>
               </div>
             </div>
+
+            {/* Issue Submission Form */}
+            <Card className="bg-[#1e1e1e] border-gray-800 p-4 mb-6">
+              <form onSubmit={handleFormSubmit} className="space-y-4">
+                <Input
+                  name="title"
+                  value={formIssue.title}
+                  onChange={handleFormChange}
+                  placeholder="Issue Title"
+                  required
+                />
+                <Textarea
+                  name="description"
+                  value={formIssue.description}
+                  onChange={handleFormChange}
+                  placeholder="Description"
+                />
+                <div className="flex gap-4">
+                  <select
+                    name="status"
+                    value={formIssue.status}
+                    onChange={handleFormChange}
+                    className="bg-[#2a2a2a] text-white p-2 rounded"
+                  >
+                    {statusOptions.map((status) => (
+                      <option key={status} value={status}>{status}</option>
+                    ))}
+                  </select>
+                  <select
+                    name="priority"
+                    value={formIssue.priority}
+                    onChange={handleFormChange}
+                    className="bg-[#2a2a2a] text-white p-2 rounded"
+                  >
+                    {priorityOptions.map((priority) => (
+                      <option key={priority} value={priority}>{priority}</option>
+                    ))}
+                  </select>
+                  <select
+                    name="platformId"
+                    value={formIssue.platformId}
+                    onChange={handleFormChange}
+                    className="bg-[#2a2a2a] text-white p-2 rounded"
+                  >
+                    {platforms.map((platform) => (
+                      <option key={platform.id} value={platform.id}>{platform.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <Input
+                  name="assigneeId"
+                  value={formIssue.assigneeId}
+                  onChange={handleFormChange}
+                  placeholder="Assignee"
+                />
+                <Button type="submit" className="bg-[#1a237e] text-white hover:bg-[#1a237e]/90">
+                  Submit Issue
+                </Button>
+              </form>
+            </Card>
           </div>
         </main>
       </div>
