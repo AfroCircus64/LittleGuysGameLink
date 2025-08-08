@@ -5,7 +5,9 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@types/react": "^19.1.9"
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "typescript": "^5.9.2"
   },
   "dependencies": {
     "lucide-react": "^0.534.0",
