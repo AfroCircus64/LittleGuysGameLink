@@ -236,16 +236,43 @@ export default function App() {
         platformId: value,
         platform: platformObj ? platformObj.name : "",
       }));
-    } else if (name === "assigneeId") {
+  } else if (name === "assigneeId") {
+    const userObj = users.find(u => String(u.id) === value);
+    setFormIssue((prev) => ({
+      ...prev,
+      assigneeId: value,
+      assignee: userObj ? userObj.username : "",
+    }));
+    } else {
+      setFormIssue((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  }
+  
+    function getPlatformName(id: number) {
+      const platform = platforms.find(p => p.id === id);
+      return platform ? platform.name : "";
+    }
+
+  function getAssigneeName(id: number) {
+    const user = users.find(u => u.id === id);
+    return user ? user.username : "";
+  }
+
+  function handleFormSubmit(event: React.FormEvent<HTMLFormElement>): void {
+    event.preventDefault();
+    // Prepare issue data for backend
+    const newIssue = mapIssueToBackend(formIssue);
     fetch("/api/bugs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(mapIssueToBackend(formIssue)),
+      body: JSON.stringify(newIssue),
     })
       .then((res) => res.json())
-      .then((data) => {
-        setIssues((prev) => [...prev, mapIssueFromBackend(data)]);
-        // Optionally reset form
+      .then((createdIssue) => {
+        setIssues((prev) => [...prev, mapIssueFromBackend(createdIssue)]);
         setFormIssue({
           id: "",
           code: "",
@@ -258,38 +285,12 @@ export default function App() {
           assignee: users[0]?.username || "",
           assigneeId: users[0]?.id || "",
         });
-      });
-        platformId: formIssue.platformId,
-        assigneeId: formIssue.assigneeId,
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setIssues((prev) => [...prev, mapIssueFromBackend(data)]);
-        // Optionally reset form
-        setFormIssue({
-          id: "",
-          code: "",
-          title: "",
-          description: "",
-          priority: "Medium",
-          status: "Open",
-          platformId: platforms[0]?.id || "",
-          assigneeId: users[0]?.id || "",
-        });
+      })
+      .catch((err) => {
+        // Optionally handle error
+        console.error("Failed to submit issue:", err);
       });
   }
-
-  function getPlatformName(id: number) {
-    const platform = platforms.find(p => p.id === id);
-    return platform ? platform.name : "";
-  }
-
-  function getAssigneeName(id: number) {
-    const user = users.find(u => u.id === id);
-    return user ? user.username : "";
-  }
-
   return (
     <div className="h-screen bg-[#121212] text-white flex overflow-hidden">
       {/* Sidebar */}
