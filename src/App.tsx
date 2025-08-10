@@ -54,161 +54,161 @@ type Issue = {
   // Add other fields as needed
 };
 
-const [issues, setIssues] = useState<Issue[]>([]);
-const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
-const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-const [videoPlaying, setVideoPlaying] = useState(false);
-const [recentProjects, setRecentProjects] = useState<string[]>([]);
-const [platforms, setPlatforms] = useState<{ id: number, name: string }[]>([]);
-const [users, setUsers] = useState<{ id: number, username: string }[]>([]);
-
-// Mapping between frontend display values and backend/database values
-const statusDisplayToBackend: Record<string, string> = {
-  "Open": "open",
-  "In Progress": "in_progress",
-  "Testing": "in_progress", // If you want a separate 'testing', add it to DB ENUM
-  "Resolved": "resolved",
-  "Closed": "closed"
-};
-
-const statusBackendToDisplay: Record<string, string> = {
-  "open": "Open",
-  "in_progress": "In Progress",
-  "resolved": "Resolved",
-  "closed": "Closed"
-  // Add "testing": "Testing" if you add it to DB
-};
-
-const priorityDisplayToBackend: Record<string, string> = {
-  "Critical": "urgent",
-  "High": "high",
-  "Medium": "medium",
-  "Low": "low"
-};
-
-const priorityBackendToDisplay: Record<string, string> = {
-  "urgent": "Critical",
-  "high": "High",
-  "medium": "Medium",
-  "low": "Low"
-};
-
-// When fetching issues from backend, map backend values to display values
-function mapIssueFromBackend(issue: any): Issue {
-  return {
-    ...issue,
-    status: statusBackendToDisplay[issue.status] || issue.status,
-    priority: priorityBackendToDisplay[issue.priority] || issue.priority
-  };
-}
-
-// When sending a new/updated issue to backend, map display values to backend values
-function mapIssueToBackend(issue: Issue): any {
-  return {
-    ...issue,
-    status: statusDisplayToBackend[issue.status] || issue.status,
-    priority: priorityDisplayToBackend[issue.priority] || issue.priority
-  };
-}
-
-// Example usage in your fetch and setIssues logic:
-useEffect(() => {
-  fetch("/api/bugs")
-    .then((res) => res.json())
-    .then((data: Issue[]) => {
-      setIssues(data.map(mapIssueFromBackend));
-      setSelectedIssue(data.length > 0 ? mapIssueFromBackend(data[0]) : null);
-    });
-
-  // Fetch recent projects if endpoint exists
-  fetch("/api/projects")
-    .then((res) => res.json())
-    .then((data: { name: string }[]) => {
-      setRecentProjects(data.map((p) => p.name));
-    })
-    .catch(() => {
-      // fallback or leave empty if endpoint doesn't exist yet
-      setRecentProjects([]);
-    });
-
-  fetch("/api/platforms")
-    .then(res => res.json())
-    .then(data => setPlatforms(data));
-
-  fetch("/api/users")
-    .then(res => res.json())
-    .then(data => setUsers(data));
-}, []);
-
-const statusCounts = {
-  open: issues.filter((i) => i.status === "Open").length,
-  inProgress: issues.filter((i) => i.status === "In Progress").length,
-  testing: issues.filter((i) => i.status === "Testing").length,
-  resolved: issues.filter((i) => i.status === "Resolved").length,
-};
-
-const sidebarItems = [
-  { icon: Bug, label: 'Bug Tracker', active: true },
-  { icon: FolderOpen, label: 'Asset Manager' },
-  { icon: FileText, label: 'Documentation' },
-  { icon: Zap, label: 'Automation' },
-  { icon: GitBranch, label: 'Release Manager' }
-];
-
-const workspaceItems = [
-  { icon: FolderOpen, label: 'Projects' },
-  { icon: Users, label: 'Team' },
-  { icon: BarChart3, label: 'Analytics' }
-];
-
-function PriorityBadge({ priority }: { priority: string }) {
-  const colors = {
-    Critical: 'bg-red-600 text-white',
-    High: 'bg-red-500/80 text-white',
-    Medium: 'bg-orange-500 text-white',
-    Low: 'bg-blue-500 text-white'
-  };
-  
-  return (
-    <Badge className={`${colors[priority as keyof typeof colors]} border-0 text-xs`}>
-      {priority}
-    </Badge>
-  );
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const colors = {
-    Open: 'bg-red-500/20 text-red-500 border-red-500/30',
-    'In Progress': 'bg-orange-500/20 text-orange-500 border-orange-500/30',
-    Testing: 'bg-blue-500/20 text-blue-500 border-blue-500/30',
-    Resolved: 'bg-green-500/20 text-green-500 border-green-500/30'
-  };
-  
-  return (
-    <Badge variant="outline" className={`${colors[status as keyof typeof colors]} text-sm`}>
-      {status}
-    </Badge>
-  );
-}
-
-type User = {
-  name: string;
-  role: string;
-  avatarUrl?: string;
-  initials: string;
-};
-
 export default function App() {
-  const [selectedPlatform, setSelectedPlatform] = useState('UE5');
-  const [selectedIssue, setSelectedIssue] = useState(issues[0]);
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [videoPlaying, setVideoPlaying] = useState(false);
-  const [user, setUser] = useState<User>({
-    name: "Alex Morgan",
-    role: "Lead Developer",
-    avatarUrl: undefined, // or a URL string if you have one
-    initials: "AM",
-  });
+  const [recentProjects, setRecentProjects] = useState<string[]>([]);
+  const [platforms, setPlatforms] = useState<{ id: number, name: string }[]>([]);
+  const [users, setUsers] = useState<{ id: number, username: string, avatarUrl?: string, role?: string }[]>([]);
+
+  // Mapping between frontend display values and backend/database values
+  const statusDisplayToBackend: Record<string, string> = {
+    "Open": "open",
+    "In Progress": "in_progress",
+    "Testing": "in_progress", // If you want a separate 'testing', add it to DB ENUM
+    "Resolved": "resolved",
+    "Closed": "closed"
+  };
+
+  const statusBackendToDisplay: Record<string, string> = {
+    "open": "Open",
+    "in_progress": "In Progress",
+    "resolved": "Resolved",
+    "closed": "Closed"
+    // Add "testing": "Testing" if you add it to DB
+  };
+
+  const priorityDisplayToBackend: Record<string, string> = {
+    "Critical": "urgent",
+    "High": "high",
+    "Medium": "medium",
+    "Low": "low"
+  };
+
+  const priorityBackendToDisplay: Record<string, string> = {
+    "urgent": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  };
+
+  // When fetching issues from backend, map backend values to display values
+  function mapIssueFromBackend(issue: any): Issue {
+    return {
+      ...issue,
+      status: statusBackendToDisplay[issue.status] || issue.status,
+      priority: priorityBackendToDisplay[issue.priority] || issue.priority
+    };
+  }
+
+  // When sending a new/updated issue to backend, map display values to backend values
+  function mapIssueToBackend(issue: Issue): any {
+    return {
+      ...issue,
+      status: statusDisplayToBackend[issue.status] || issue.status,
+      priority: priorityDisplayToBackend[issue.priority] || issue.priority
+    };
+  }
+
+  // Example usage in your fetch and setIssues logic:
+  useEffect(() => {
+    fetch("/api/bugs")
+      .then((res) => res.json())
+      .then((data: Issue[]) => {
+        setIssues(data.map(mapIssueFromBackend));
+        setSelectedIssue(data.length > 0 ? mapIssueFromBackend(data[0]) : null);
+      });
+
+    // Fetch recent projects if endpoint exists
+    fetch("/api/projects")
+      .then((res) => res.json())
+      .then((data: { name: string }[]) => {
+        setRecentProjects(data.map((p) => p.name));
+      })
+      .catch(() => {
+        // fallback or leave empty if endpoint doesn't exist yet
+        setRecentProjects([]);
+      });
+
+    fetch("/api/platforms")
+      .then(res => res.json())
+      .then(data => setPlatforms(data));
+
+    fetch("/api/users")
+      .then(res => res.json())
+      .then(data => setUsers(data.map((u: any) => ({
+        id: u.id,
+        username: u.username,
+        avatarUrl: u.avatarUrl, // Ensure avatarUrl is included if present
+        role: u.role || "User" // Add role property, fallback to "User" if not present
+      }))));
+  }, []);
+
+  useEffect(() => {
+    if (platforms.length > 0 && !selectedPlatform) {
+      setSelectedPlatform(platforms[0].name);
+    }
+  }, [platforms]);
+
+  const statusCounts = {
+    open: issues.filter((i) => i.status === "Open").length,
+    inProgress: issues.filter((i) => i.status === "In Progress").length,
+    testing: issues.filter((i) => i.status === "Testing").length,
+    resolved: issues.filter((i) => i.status === "Resolved").length,
+  };
+
+  const sidebarItems = [
+    { icon: Bug, label: 'Bug Tracker', active: true },
+    { icon: FolderOpen, label: 'Asset Manager' },
+    { icon: FileText, label: 'Documentation' },
+    { icon: Zap, label: 'Automation' },
+    { icon: GitBranch, label: 'Release Manager' }
+  ];
+
+  const workspaceItems = [
+    { icon: FolderOpen, label: 'Projects' },
+    { icon: Users, label: 'Team' },
+    { icon: BarChart3, label: 'Analytics' }
+  ];
+
+  function PriorityBadge({ priority }: { priority: string }) {
+    const colors = {
+      Critical: 'bg-red-600 text-white',
+      High: 'bg-red-500/80 text-white',
+      Medium: 'bg-orange-500 text-white',
+      Low: 'bg-blue-500 text-white'
+    };
+    
+    return (
+      <Badge className={`${colors[priority as keyof typeof colors]} border-0 text-xs`}>
+        {priority}
+      </Badge>
+    );
+  }
+
+  function StatusBadge({ status }: { status: string }) {
+    const colors = {
+      Open: 'bg-red-500/20 text-red-500 border-red-500/30',
+      'In Progress': 'bg-orange-500/20 text-orange-500 border-orange-500/30',
+      Testing: 'bg-blue-500/20 text-blue-500 border-blue-500/30',
+      Resolved: 'bg-green-500/20 text-green-500 border-green-500/30'
+    };
+    
+    return (
+      <Badge variant="outline" className={`${colors[status as keyof typeof colors]} text-sm`}>
+        {status}
+      </Badge>
+    );
+  }
+
+  type User = {
+    name: string;
+    role: string;
+    avatarUrl?: string;
+    initials: string;
+  };
 
   const statusOptions = ["Open", "In Progress", "Resolved", "Closed"];
   const priorityOptions = ["Critical", "High", "Medium", "Low"];
@@ -291,6 +291,8 @@ export default function App() {
         console.error("Failed to submit issue:", err);
       });
   }
+  const [selectedPlatform, setSelectedPlatform] = useState<string>(platforms[0]?.name || "");
+  const user = users[0] || { name: "Unknown", role: "User", initials: "U" };
   return (
     <div className="h-screen bg-[#121212] text-white flex overflow-hidden">
       {/* Sidebar */}
@@ -403,12 +405,14 @@ export default function App() {
               {user.avatarUrl ? (
                 <AvatarImage src={user.avatarUrl} />
               ) : (
-                <AvatarFallback>{user.initials}</AvatarFallback>
+                <AvatarFallback>
+                  {user.username ? user.username.charAt(0).toUpperCase() : "U"}
+                </AvatarFallback>
               )}
             </Avatar>
             {!sidebarCollapsed && (
               <div className="flex-1">
-                <p className="text-sm font-medium text-white">{user.name}</p>
+                <p className="text-sm font-medium text-white">{user.username}</p>
                 <p className="text-xs text-gray-400">{user.role}</p>
               </div>
             )}
