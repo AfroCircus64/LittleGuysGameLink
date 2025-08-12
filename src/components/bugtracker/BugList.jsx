@@ -5,7 +5,7 @@ function BugList() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/bugs")
+    fetch("http://localhost:8080/api/bugs")
       .then((res) => res.json())
       .then((data) => {
         setBugs(data);
