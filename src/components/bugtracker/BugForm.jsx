@@ -17,12 +17,25 @@ function BugForm({ onBugCreated }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch("/api/bugs", {
+
+    // Replace these with actual credentials
+    const username = "user";
+    const passwor = "password";
+
+    // Create basic auth header
+    const basicAuth = 'basic ' + btoa('${username}:${password}');
+
+    fetch("http://localhost:8080/api/bugs", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "Authorization": basicAuth,},
       body: JSON.stringify(form),
     })
-      .then((res) => res.json())
+      .then((res) => {
+	if (!res.ok) {
+	  throw new Error('HTTP error! Satus: ${res.status}');
+	}
+	return res.json());
+      })
       .then((bug) => {
         onBugCreated(bug);
         setForm({
@@ -34,7 +47,11 @@ function BugForm({ onBugCreated }) {
           status: "",
           assignee: "",
         });
-      });
+      })
+      .catch(err => {
+        console.error("Error creating bug:", err);
+        alert("Failed to create bug. See console for details.");
+       });
   };
 
   return (
